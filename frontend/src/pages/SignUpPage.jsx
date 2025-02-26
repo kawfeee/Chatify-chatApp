@@ -5,6 +5,8 @@ import { MessageSquare, User, Mail, EyeOff, Eye, Lock, Loader2 } from 'lucide-re
 import { Link } from 'react-router-dom';
 
 import AuthImagePattern from '../components/AuthImagePattern';
+import toast from "react-hot-toast";
+
 
 const SignUpPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,21 +16,33 @@ const SignUpPage = () => {
     password: "",
   });
 
-  const {signup, isSigningUp} = useAuthStore();
+  const { signup, isSigningUp } = useAuthStore();
 
-  const validateForm = () => {}
+  const validateForm = () => {
+    if (!formData.fullName.trim()) return toast.error("Full name is required");
+    if (!formData.email.trim()) return toast.error("Email is required");
+    if (!/\S+@\S+\.\S+/.test(formData.email)) return toast.error("Invalid email format");
+    if (!formData.password) return toast.error("Password is required");
+    if (formData.password.length < 6) return toast.error("Password must be at least 6 characters");
+
+    return true;
+  };
 
   const handleSubmit = (e) => {
-    e.preventDefault()
-  }
+    e.preventDefault();
 
-  return <div className='min-h-screen grid lg:grid-cols-2'>
-    {/* left side of the form  */}
-    <div className='flex flex-col justify-center items-center p-6 sm:p-12'>
+    const success = validateForm();
 
-      <div className='w-full max-w-md space-y-8'>
-        {/* LOGO */}
-        <div className="text-center mb-8">
+    if (success === true) signup(formData);
+  };
+
+  return (
+    <div className="min-h-screen grid lg:grid-cols-2">
+      {/* left side */}
+      <div className="flex flex-col justify-center items-center p-6 sm:p-12">
+        <div className="w-full max-w-md space-y-8">
+          {/* LOGO */}
+          <div className="text-center mb-8">
             <div className="flex flex-col items-center gap-2 group">
               <div
                 className="size-12 rounded-xl bg-primary/10 flex items-center justify-center 
@@ -41,8 +55,7 @@ const SignUpPage = () => {
             </div>
           </div>
 
-        {/* FORM */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="form-control">
               <label className="label">
                 <span className="label-text font-medium">Full Name</span>
@@ -61,7 +74,7 @@ const SignUpPage = () => {
               </div>
             </div>
 
-          <div className="form-control">
+            <div className="form-control">
               <label className="label">
                 <span className="label-text font-medium">Email</span>
               </label>
@@ -75,11 +88,11 @@ const SignUpPage = () => {
                   placeholder="you@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  />
-           </div>
-          </div>
+                />
+              </div>
+            </div>
 
-           <div className="form-control">
+            <div className="form-control">
               <label className="label">
                 <span className="label-text font-medium">Password</span>
               </label>
@@ -93,12 +106,12 @@ const SignUpPage = () => {
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  />
+                />
                 <button
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   onClick={() => setShowPassword(!showPassword)}
-                  >
+                >
                   {showPassword ? (
                     <EyeOff className="size-5 text-base-content/40" />
                   ) : (
@@ -106,9 +119,9 @@ const SignUpPage = () => {
                   )}
                 </button>
               </div>
-          </div>
+            </div>
 
-          <button type="submit" className="btn btn-primary w-full" disabled={isSigningUp}>
+            <button type="submit" className="btn btn-primary w-full" disabled={isSigningUp}>
               {isSigningUp ? (
                 <>
                   <Loader2 className="size-5 animate-spin" />
@@ -117,29 +130,28 @@ const SignUpPage = () => {
               ) : (
                 "Create Account"
               )}
-           </button>
-        </form>
+            </button>
+          </form>
 
-        <div className="text-center">
-          <p className="text-base-content/60">
-            Already have an account?{" "}
-            <Link to="/login" className="link link-primary">
-              Sign in
-            </Link>
-          </p>
+          <div className="text-center">
+            <p className="text-base-content/60">
+              Already have an account?{" "}
+              <Link to="/login" className="link link-primary">
+                Sign in
+              </Link>
+            </p>
+          </div>
         </div>
-
       </div>
 
+      {/* right side */}
+
+      <AuthImagePattern
+        title="Join our community"
+        subtitle="Connect with friends, share moments, and stay in touch with your loved ones."
+      />
     </div>
-
-    {/* right side of the form  */}
-    <AuthImagePattern
-      title="Join our community"
-      subtitle="Connect with friends, share moments, and stay in touch with your loved ones."
-    />
-
-  </div>
+  );
 }
 
 export default SignUpPage
